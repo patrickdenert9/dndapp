@@ -1,14 +1,12 @@
 package com.pdenert.dnd.services;
 
-import com.pdenert.dnd.models.User;
-
 public interface JwtService {
 
 
 
-    String generateJwt(Integer id);
+    String generateJwt(String username);
 
-    User getUserFromToken(String token) throws UnauthorizedException;
+    //User getUserFromToken(String token) throws UnauthorizedException;
 
-    int verifyJwt(String token);
+    String verifyJwt(String token);
 }

@@ -1,10 +1,6 @@
 package com.pdenert.dnd.services;
 
 
-import com.pdenert.dnd.models.User;
-import com.pdenert.dnd.services.JwtService;
-import com.pdenert.dnd.services.UnauthorizedException;
-import com.pdenert.dnd.services.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,8 +17,6 @@ import java.util.Date;
 public class JwtServiceImpl implements JwtService {
     public static final long EXPIRATION = 12 * 60 * 60 * 1000;          // expiration = 12 hours
 
-    @Autowired
-    UserService us;
 
     @Value("${jwt.secret}")
     private String secretKey;                                           // get secretkey from application.yml
@@ -31,25 +25,25 @@ public class JwtServiceImpl implements JwtService {
     /**
      * Calls private JWT token generator with a subject of userid
      *
-     * @param id The userId of a User.
+     * @param username The username of a User.
      * @return jwt token as String.
      */
     @Override
-    public String generateJwt(Integer id) {
-        return generateJwtHelper(id);
+    public String generateJwt(String username) {
+        return generateJwtHelper(username);
     }
 
     /**
      * Generates JWT token with a subject of userid
      *
-     * @param id The userId of a User.
+     * @param username The username of a User.
      * @return jwt token as String.
      */
-    private String generateJwtHelper(Integer id) {
+    private String generateJwtHelper(String username) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));   // create key from app.yml
 
         return Jwts.builder()
-                .subject(id.toString())
+                .subject(username)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(key)
@@ -62,28 +56,28 @@ public class JwtServiceImpl implements JwtService {
      * @param token the jwt token from request
      * @return User if exists or null if not.
      */
-    @Override
-    public User getUserFromToken(String token) throws UnauthorizedException {
-        int id = verifyJwt(token);
-        if(id == 0){
-            throw new UnauthorizedException("Authentication Failed");
-        } else if(id == -1) {
-            throw new UnauthorizedException("Token Expired");
-        } else{
-            return us.getUser(id);
-        }
-    }
+//    @Override
+//    public User getUserFromToken(String token) throws UnauthorizedException {
+//        int id = verifyJwt(token);
+//        if(id == 0){
+//            throw new UnauthorizedException("Authentication Failed");
+//        } else if(id == -1) {
+//            throw new UnauthorizedException("Token Expired");
+//        } else{
+//            return us.getUser(id);
+//        }
+//    }
 
     /**
      * Verify JWT token
      *
      * @param token the jwt token from request
-     * @return 0  = Auth failed (token is not valid)
-     *        -1  = expired token
-     *         1+ = id of user
+     * @return Authentication Failed  = Auth failed (token is not valid)
+     * Expired Token  = expired token
+     * username = username of user
      */
     @Override
-    public int verifyJwt(String token) {
+    public String verifyJwt(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));   // create key from app.yml
         token = token.split(" ")[1].trim();                                      //remove "Bearer" from token header
         Claims body;
@@ -94,13 +88,13 @@ public class JwtServiceImpl implements JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (JwtException e) {
-            return 0;
+            return null;
         }
         if(body.getExpiration().getTime() < System.currentTimeMillis()) {
-            return -1;
+            return "Expired";
         }
 
-        return Integer.parseInt(body.getSubject());
+        return body.getSubject();
     }
 
 }

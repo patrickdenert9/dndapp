@@ -34,10 +34,18 @@ public class SecurityConfig {
         //http.formLogin(Customizer.withDefaults());                                              // enable login form
         return http
                 .csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("users/register","users/login")
-                        .permitAll()                                          // allow access without credentials to above endpoints
-                        .anyRequest().authenticated())                        // auth all requests
+                .authorizeHttpRequests(request -> {
+                        request
+                                .requestMatchers("users/register","users/login")
+                                .permitAll();                                                       // allow access without credentials to above endpoints
+
+                        request
+                                .requestMatchers("/admin/**").hasRole("ADMIN");            // only allow admins
+                        request
+                                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN");
+                        request.anyRequest().authenticated();                                       // auth all requests not mentioned
+
+                })                        // auth all requests
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // set sessions to stateless to prevent
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -46,7 +54,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();     // use db to auth
 
         authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder(12));       // use bcrypt to verify
         authenticationProvider.setUserDetailsService(userDetailsService);                       // set to custom user details service

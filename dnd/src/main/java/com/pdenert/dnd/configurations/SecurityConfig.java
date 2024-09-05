@@ -42,7 +42,7 @@ public class SecurityConfig {
                         request
                                 .requestMatchers("/admin/**").hasRole("ADMIN");            // only allow admins
                         request
-                                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN");
+                                .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN");
                         request.anyRequest().authenticated();                                       // auth all requests not mentioned
 
                 })                        // auth all requests

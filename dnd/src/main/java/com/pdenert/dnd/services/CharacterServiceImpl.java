@@ -25,6 +25,10 @@ public class CharacterServiceImpl implements CharacterService{
 
     @Override
     public List<Character> getAllCharacters(User user){
-        return characterRepo.findAllByUser(user);
+        List<Character> characters = characterRepo.findAllByUser(user);
+        for(Character character: characters) {                              // remove user info from response
+            character.setUser(null);
+        }
+        return characters;
     }
 }

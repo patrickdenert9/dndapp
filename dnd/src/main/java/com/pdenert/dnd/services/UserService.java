@@ -7,5 +7,7 @@ public interface UserService {
 
     User verify(User user);
 
-    User getUser(int id);
+    //User getUser(int id);
+
+    User getUser(String username);
 }

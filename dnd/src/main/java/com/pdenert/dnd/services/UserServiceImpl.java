@@ -29,10 +29,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(User user) {
         if(userRepo.findByUsername(user.getUsername()) != null) {           // check if username or email taken
-            System.out.println(userRepo.findByUsername(user.getUsername()));
+            //System.out.println(userRepo.findByUsername(user.getUsername()));
             throw new RuntimeException("Username Taken");
         } else if(userRepo.findByEmail(user.getEmail()) != null) {
-            System.out.println(userRepo.findByEmail(user.getEmail()));
+            //System.out.println(userRepo.findByEmail(user.getEmail()));
             throw new RuntimeException("Email Taken");
         } else {
             user.setRole(Role.user);            // set role to user so someone cant try to add an admin in the app

@@ -39,9 +39,13 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
-        user = userService.verify(user);                                        // verify user and retrieve real user info
-        String jwt = jwtService.generateJwt(user.getUsername());                      // use real user id to gen jwt
-        return ResponseEntity.status(200).body(jwt);
+        try{
+            user = userService.verify(user);                                              // verify user and retrieve real user info
+            String jwt = jwtService.generateJwt(user.getUsername());                      // use real user id to gen jwt
+            return ResponseEntity.status(200).body(jwt);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
     @GetMapping

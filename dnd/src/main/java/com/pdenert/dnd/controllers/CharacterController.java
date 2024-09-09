@@ -5,6 +5,7 @@ import com.pdenert.dnd.models.User;
 import com.pdenert.dnd.models.dtos.CharacterInfoDto;
 import com.pdenert.dnd.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,10 +36,10 @@ public class CharacterController {
      * @return saved char in db
      */
     @PostMapping("/new")
-    public ResponseEntity<Character> addCharacter(@RequestBody Character character, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CharacterInfoDto> addCharacter(@RequestBody Character character, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUser(userDetails.getUsername());                                 // get user from db
         character.setUser(user);                                                                    // set user_id in character
-        return ResponseEntity.status(200).body(characterService.addCharacter(character));
+        return ResponseEntity.status(HttpStatus.CREATED).body(characterService.addCharacter(character));
     }
 
     /**

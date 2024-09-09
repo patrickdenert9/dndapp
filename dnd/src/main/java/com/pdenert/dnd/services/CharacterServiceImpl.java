@@ -28,8 +28,10 @@ public class CharacterServiceImpl implements CharacterService{
      * @return character saved in db
      */
     @Override
-    public Character addCharacter(Character character) {
-        return characterRepo.save(character);
+    public CharacterInfoDto addCharacter(Character character) {
+        Character newCharacter = characterRepo.save(character);
+        newCharacter.setUser(null);
+        return new CharacterInfoDto(newCharacter);
     }
 
     /**

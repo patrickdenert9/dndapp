@@ -1,6 +1,7 @@
 package com.pdenert.dnd.services;
 
 import com.pdenert.dnd.models.User;
+import com.pdenert.dnd.models.dtos.UserDto;
 import com.pdenert.dnd.models.enums.Role;
 import com.pdenert.dnd.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,22 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder(12);   // strength = 12
 
     @Override
-    public User addUser(User user) {
-        user.setRole(Role.user);            // set role to user so someone cant try to add an admin in the app
-                                            // admin should only be added in the db manually
+    public UserDto addUser(User user) {
+        if(userRepo.findByUsername(user.getUsername()) != null) {           // check if username or email taken
+            System.out.println(userRepo.findByUsername(user.getUsername()));
+            throw new RuntimeException("Username Taken");
+        } else if(userRepo.findByEmail(user.getEmail()) != null) {
+            System.out.println(userRepo.findByEmail(user.getEmail()));
+            throw new RuntimeException("Email Taken");
+        } else {
+            user.setRole(Role.user);            // set role to user so someone cant try to add an admin in the app
+                                                // admin should only be added in the db manually
 
-        user.setPassword(bcrypt.encode(user.getPassword()));    // hash password with bcrypt
-        return userRepo.save(user);
+            user.setPassword(bcrypt.encode(user.getPassword()));            // hash password with bcrypt
+
+            User newUser = userRepo.save(user);                             // save user in db
+            return new UserDto(user.getEmail(), user.getUsername());        // return information as dto
+        }
     }
 
     @Override

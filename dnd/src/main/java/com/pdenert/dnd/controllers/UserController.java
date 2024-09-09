@@ -2,6 +2,7 @@ package com.pdenert.dnd.controllers;
 
 
 import com.pdenert.dnd.models.User;
+import com.pdenert.dnd.models.dtos.UserDto;
 import com.pdenert.dnd.services.JwtService;
 import com.pdenert.dnd.services.JwtServiceImpl;
 import com.pdenert.dnd.services.UserService;
@@ -26,8 +27,14 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-        return  ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
+    public ResponseEntity<Object> addUser(@RequestBody User user) {
+        try{
+            UserDto userDto = userService.addUser(user);
+            return  ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @PostMapping("/login")

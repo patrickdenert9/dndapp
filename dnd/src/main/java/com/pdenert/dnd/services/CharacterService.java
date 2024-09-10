@@ -9,7 +9,7 @@ import java.util.List;
 public interface CharacterService {
 
 
-    CharacterInfoDto addCharacter(Character character);
+    CharacterInfoDto addCharacter(CharacterInfoDto character);
 
     List<CharacterInfoDto> getAllCharacters(User user);
 

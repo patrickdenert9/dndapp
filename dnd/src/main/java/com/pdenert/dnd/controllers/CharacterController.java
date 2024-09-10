@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequestMapping("/characters")
 @RestController
@@ -36,10 +37,16 @@ public class CharacterController {
      * @return saved char in db
      */
     @PostMapping("/new")
-    public ResponseEntity<CharacterInfoDto> addCharacter(@RequestBody Character character, @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.getUser(userDetails.getUsername());                                 // get user from db
-        character.setUser(user);                                                                    // set user_id in character
-        return ResponseEntity.status(HttpStatus.CREATED).body(characterService.addCharacter(character));
+    public ResponseEntity<Object> addCharacter(@RequestBody CharacterInfoDto character, @AuthenticationPrincipal UserDetails userDetails) {
+        try{
+            User user = userService.getUser(userDetails.getUsername());                                 // get user from db
+            Character newCharacter = character.getCharacter();
+            newCharacter.setUser(user);                                                                    // set user_id in character
+            return ResponseEntity.status(HttpStatus.CREATED).body(characterService.addCharacter(character));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request");
+        }
+
     }
 
     /**
@@ -50,8 +57,13 @@ public class CharacterController {
      * @return list of all char belonging to user
      */
     @GetMapping
-    public ResponseEntity<List<CharacterInfoDto>> getCharacters(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.getUser(userDetails.getUsername());                                 // get user from db
-        return ResponseEntity.status(200).body(characterService.getAllCharacters(user));
+    public ResponseEntity<Object> getCharacters(@AuthenticationPrincipal UserDetails userDetails) {
+        try{
+            User user = userService.getUser(userDetails.getUsername());                                 // get user from db
+            return ResponseEntity.status(200).body(characterService.getAllCharacters(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request");
+        }
+
     }
 }

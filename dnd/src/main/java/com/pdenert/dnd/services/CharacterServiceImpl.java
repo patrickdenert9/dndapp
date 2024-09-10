@@ -28,11 +28,20 @@ public class CharacterServiceImpl implements CharacterService{
      * @return character saved in db
      */
     @Override
-    public CharacterInfoDto addCharacter(Character character) {
-        Character newCharacter = characterRepo.save(character);
+    public CharacterInfoDto addCharacter(CharacterInfoDto character) {
+        Character newCharacter = characterRepo.save(character.getCharacter());
+        List<String> skills = character.getSkills();
+
+        // Save skills in junction table
+        for(String skill: skills) {
+            characterRepo.saveSkill(skill, newCharacter.getId());
+        }
+
         newCharacter.setUser(null);
-        return new CharacterInfoDto(newCharacter);
+        return new CharacterInfoDto(newCharacter, characterRepo.getSkillsByCharacterId(newCharacter.getId()));
     }
+
+
 
     /**
      * retrieves all characters for given user and removes user details from response
@@ -62,8 +71,10 @@ public class CharacterServiceImpl implements CharacterService{
         List<CharacterInfoDto> characterInfo = new ArrayList<>();
         for(Character character: characters) {
             character.setUser(null);
-            characterInfo.add(new CharacterInfoDto(character));
+            List<String> skills = characterRepo.getSkillsByCharacterId(character.getId());
+            characterInfo.add(new CharacterInfoDto(character, skills));
         }
         return characterInfo;
     }
+
 }

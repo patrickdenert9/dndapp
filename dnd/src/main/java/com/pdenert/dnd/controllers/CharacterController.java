@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Objects;
 
+
 @RequestMapping("/characters")
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class CharacterController {
 
     private CharacterService characterService;
